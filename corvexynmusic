@@ -1,0 +1,2021 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title id="html-title">Corvexyn Music Pro Studio</title>
+  
+  <!-- Favicon & Mobile App Icons -->
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3209/3209265.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3209/3209265.png">
+
+  <!-- Tailwind CSS & FontAwesome Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          animation: {
+            'spin-slow': 'spin 8s linear infinite',
+            'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 9999px; }
+
+    /* Corvexyn Custom Track Progress Bar (YouTube Style Filled Purple) */
+    input[type=range].corvexyn-progress-bar {
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 9999px;
+      outline: none;
+      background: rgba(100, 116, 139, 0.3);
+    }
+    input[type=range].corvexyn-progress-bar::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #8b5cf6;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    input[type=range].corvexyn-progress-bar::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #8b5cf6;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* Corvexyn Custom Volume Sound Bar (YouTube Style Filled Emerald) */
+    input[type=range].corvexyn-sound-bar {
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 9999px;
+      outline: none;
+      background: rgba(100, 116, 139, 0.3);
+    }
+    input[type=range].corvexyn-sound-bar::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #10b981;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    input[type=range].corvexyn-sound-bar::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #10b981;
+      cursor: pointer;
+      border: none;
+    }
+
+    .lyric-line.active {
+      color: #34d399 !important;
+      font-weight: 700 !important;
+      transform: scale(1.05);
+      transition: all 0.2s ease;
+      text-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+    }
+
+    .fs-controls-hidden { opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+    .fs-controls-visible { opacity: 1; pointer-events: auto; transition: opacity 0.3s ease; }
+
+    /* Mobile Fake Fullscreen Overlay */
+    .mobile-fake-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 9999 !important;
+      border-radius: 0 !important;
+      background-color: #020617 !important;
+      padding: 1rem !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white" id="app-body-root">
+
+  <!-- Security PIN Verification Modal -->
+  <div id="pin-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/30 via-slate-950/60 to-slate-950 pointer-events-none"></div>
+    <div class="bg-slate-900/90 border border-slate-800 rounded-[2.5rem] shadow-[0_0_60px_rgba(79,70,229,0.2)] p-6 sm:p-8 w-full max-w-sm text-center relative backdrop-blur-2xl">
+      <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-emerald-400 text-white rounded-2xl flex items-center justify-center mx-auto mb-5 text-2xl shadow-lg shadow-indigo-500/30 animate-pulse">
+        <i class="fa-solid fa-compact-disc animate-spin-slow"></i>
+      </div>
+      <h2 class="text-white font-bold text-lg tracking-tight mb-1">CORVEXYN MUSIC</h2>
+      <p id="pin-sub-text" class="text-xs text-slate-400 mb-6 font-medium">보안 PIN 인증</p>
+
+      <div id="pin-dots-container" class="flex justify-center gap-3.5 mb-6 mx-auto">
+        <div id="dot-0" class="w-4 h-4 rounded-full border-2 border-slate-700 bg-slate-800/50 transition-all"></div>
+        <div id="dot-1" class="w-4 h-4 rounded-full border-2 border-slate-700 bg-slate-800/50 transition-all"></div>
+        <div id="dot-2" class="w-4 h-4 rounded-full border-2 border-slate-700 bg-slate-800/50 transition-all"></div>
+        <div id="dot-3" class="w-4 h-4 rounded-full border-2 border-slate-700 bg-slate-800/50 transition-all"></div>
+      </div>
+
+      <p id="pin-error" class="text-rose-400 text-xs mb-4 h-4 font-semibold transition-opacity opacity-0">비밀번호가 올바르지 않습니다.</p>
+
+      <div class="grid grid-cols-3 gap-2.5">
+        <button type="button" onclick="pressPin('1')" class="bg-slate-800/60 hover:bg-slate-700 active:scale-95 py-3.5 rounded-2xl font-semibold text-lg transition border border-slate-700/50 text-white shadow-sm">1</button>
+        <button type="button" onclick="pressPin('2')" class="bg-slate-800/60 hover:bg-slate-700 active:scale-95 py-3.5 rounded-2xl font-semibold text-lg transition border border-slate-700/50 text-white shadow-sm">2</button>
+        <button type="button" onclick="pressPin('3')" class="bg-slate-800/60 hover:bg-slate-700 active:scale-95 py-3.5 rounded-2xl font-semibold text-lg transition border border-slate-700/50 text-white shadow-sm">3</button>
+        <button type="button" onclick="pressPin('4')" class="bg-slate-800/60 hover:bg-slate-700 active:scale-95 py-3.5 rounded-2xl font-semibold text-lg transition border border-slate-700/50 text-white shadow-sm">4</button>
+        <button type="button" onclick="pressPin('5')" class="bg-slate-800/60 hover:bg-slate-700 active:scale-95 py-3.5 rounded-2xl font-semibold text-lg transition border border-slate-700/50 text-white shadow-sm">5</button>
+        <button type="button" onclick="pressPin('6')" class="bg-slate-800/60 hover:bg-slate-700 active:scale-95 py-3.5 rounded-2xl font-semibold text-lg transition border border-slate-700/50 text-white shadow-sm">6</button>
+        <button type="button" onclick="pressPin('7')" class="bg-slate-800/60 hover:bg-slate-700 active:scale-95 py-3.5 rounded-2xl font-semibold text-lg transition border border-slate-700/50 text-white shadow-sm">7</button>
+        <button type="button" onclick="pressPin('8')" class="bg-slate-800/60 hover:bg-slate-700 active:scale-95 py-3.5 rounded-2xl font-semibold text-lg transition border border-slate-700/50 text-white shadow-sm">8</button>
+        <button type="button" onclick="pressPin('9')" class="bg-slate-800/60 hover:bg-slate-700 active:scale-95 py-3.5 rounded-2xl font-semibold text-lg transition border border-slate-700/50 text-white shadow-sm">9</button>
+        <button type="button" onclick="clearPin()" class="bg-slate-900 hover:bg-slate-800 active:scale-95 py-3.5 rounded-2xl text-xs font-semibold text-slate-400 transition border border-slate-800">C</button>
+        <button type="button" onclick="pressPin('0')" class="bg-slate-800/60 hover:bg-slate-700 active:scale-95 py-3.5 rounded-2xl font-semibold text-lg transition border border-slate-700/50 text-white shadow-sm">0</button>
+        <button type="button" onclick="backspacePin()" class="bg-slate-900 hover:bg-slate-800 active:scale-95 py-3.5 rounded-2xl text-xs font-semibold text-slate-400 transition border border-slate-800"><i class="fa-solid fa-delete-left"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application Container -->
+  <div id="app-container" class="flex-1 flex flex-col hidden min-h-screen transition-colors duration-300">
+    
+    <!-- Top Header -->
+    <header class="bg-white/80 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-emerald-400 flex items-center justify-center text-white shadow-md">
+          <i class="fa-solid fa-compact-disc animate-spin-slow text-xl"></i>
+        </div>
+        <div>
+          <h1 id="brand-title" class="font-bold text-base sm:text-lg leading-tight tracking-tight text-slate-900 dark:text-white">Corvexyn Music</h1>
+          <p id="ui-mode-tag" class="text-[10px] sm:text-xs text-indigo-600 dark:text-indigo-400 font-semibold">컴퓨터 스튜디오 UI</p>
+        </div>
+      </div>
+
+      <!-- Control Action Bar -->
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
+        <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-2.5 py-1.5 rounded-xl font-semibold border border-slate-300 dark:border-slate-700 outline-none cursor-pointer">
+          <option value="ko">🇰🇷 한국어</option>
+          <option value="en">🇺🇸 English</option>
+        </select>
+
+        <button type="button" onclick="toggleDeviceMode()" id="device-mode-btn" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-xl font-semibold transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-desktop text-indigo-500" id="device-icon"></i>
+          <span id="device-text">모바일 UI로 전환</span>
+        </button>
+
+        <button type="button" onclick="openThemeModal()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 p-2 rounded-xl transition flex items-center justify-center shadow-sm" title="테마 설정">
+          <i class="fa-solid fa-circle-half-stroke text-sm"></i>
+        </button>
+
+        <button type="button" onclick="openSettingsModal()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 p-2 rounded-xl transition flex items-center justify-center shadow-sm" title="EQ 설정">
+          <i class="fa-solid fa-sliders text-sm"></i>
+        </button>
+
+        <button type="button" id="backup-btn" onclick="exportDataToFile()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1.5 transition shadow-sm border border-slate-300 dark:border-slate-700">
+          <i class="fa-solid fa-download text-emerald-500"></i> 백업
+        </button>
+        <label id="restore-label" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-sm">
+          <i class="fa-solid fa-upload text-cyan-500"></i> <span id="restore-text">복원</span>
+          <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importDataFromFile(event)">
+        </label>
+      </div>
+    </header>
+
+    <!-- Main Content Layout Grid -->
+    <main id="main-layout-wrapper" class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 pb-40">
+      
+      <!-- Left Column: Playlists & Media Input Form -->
+      <section id="sidebar-section" class="lg:col-span-4 flex flex-col gap-6">
+        
+        <!-- Playlist Storage Manager -->
+        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 flex flex-col gap-3 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
+            <h2 id="pl-storage-title" class="font-bold text-sm flex items-center gap-2 text-slate-900 dark:text-white">
+              <i class="fa-solid fa-folder-closed text-indigo-500"></i> 재생목록 보관함
+            </h2>
+            <button type="button" id="new-pl-btn" onclick="createNewPlaylist()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-2.5 py-1 rounded-xl transition font-semibold shadow">
+              + 새 목록
+            </button>
+          </div>
+          <div id="playlist-list" class="space-y-1.5 max-h-44 overflow-y-auto pr-1"></div>
+        </div>
+
+        <!-- Media Track Add Form -->
+        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 flex flex-col gap-3 shadow-xl">
+          <h2 id="track-register-title" class="font-bold text-sm flex items-center gap-2 text-slate-900 dark:text-white">
+            <i class="fa-solid fa-circle-plus text-emerald-500"></i> 트랙 등록하기
+          </h2>
+
+          <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl text-xs gap-1 border border-slate-200 dark:border-slate-800">
+            <button type="button" id="tab-yt-btn" onclick="switchTab('youtube')" class="flex-1 py-1.5 rounded-xl font-semibold bg-indigo-600 text-white transition">YouTube</button>
+            <button type="button" id="tab-mp3-btn" onclick="switchTab('mp3')" class="flex-1 py-1.5 rounded-lg font-semibold text-slate-500 dark:text-slate-400 transition">MP3</button>
+            <button type="button" id="tab-mp4-btn" onclick="switchTab('mp4')" class="flex-1 py-1.5 rounded-lg font-semibold text-slate-500 dark:text-slate-400 transition">MP4</button>
+          </div>
+
+          <!-- Form YouTube -->
+          <div id="form-youtube" class="flex flex-col gap-2.5 text-xs">
+            <input type="text" id="yt-title" placeholder="곡 제목 (자동 불러오는 중...)" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 outline-none transition text-slate-900 dark:text-white">
+            <input type="text" id="yt-artist" placeholder="아티스트" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 outline-none transition text-slate-900 dark:text-white">
+            <input type="text" id="yt-url" oninput="handleYoutubeUrlInput(this.value)" placeholder="YouTube URL 또는 Video ID 입력" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 outline-none transition text-slate-900 dark:text-white">
+            <button type="button" id="yt-submit-btn" onclick="addYouTubeTrack()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition shadow">유튜브 트랙 등록</button>
+          </div>
+
+          <!-- Form MP3 -->
+          <div id="form-mp3" class="hidden flex-col gap-2.5 text-xs">
+            <input type="text" id="mp3-title" placeholder="곡 제목" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 outline-none transition text-slate-900 dark:text-white">
+            <input type="text" id="mp3-artist" placeholder="아티스트" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 outline-none transition text-slate-900 dark:text-white">
+            <label class="bg-slate-50 dark:bg-slate-950 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-3 text-center cursor-pointer hover:border-emerald-500 transition text-slate-500 dark:text-slate-400">
+              <i class="fa-solid fa-file-audio text-xl mb-1 block text-emerald-500"></i>
+              <span id="mp3-file-label">MP3 음원 파일 선택</span>
+              <input type="file" id="mp3-file-input" accept="audio/*" class="hidden" onchange="handleMp3FileSelect(event)">
+            </label>
+            <button type="button" id="mp3-submit-btn" onclick="addMp3Track()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl transition shadow">MP3 트랙 저장</button>
+          </div>
+
+          <!-- Form MP4 -->
+          <div id="form-mp4" class="hidden flex-col gap-2.5 text-xs">
+            <input type="text" id="mp4-title" placeholder="영상 제목" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 outline-none transition text-slate-900 dark:text-white">
+            <input type="text" id="mp4-artist" placeholder="아티스트 / 제작자" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 outline-none transition text-slate-900 dark:text-white">
+            <label class="bg-slate-50 dark:bg-slate-950 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-3 text-center cursor-pointer hover:border-purple-500 transition text-slate-500 dark:text-slate-400">
+              <i class="fa-solid fa-file-video text-xl mb-1 block text-purple-500"></i>
+              <span id="mp4-file-label">MP4 동영상 파일 선택</span>
+              <input type="file" id="mp4-file-input" accept="video/mp4,video/*" class="hidden" onchange="handleMp4FileSelect(event)">
+            </label>
+            <button type="button" id="mp4-submit-btn" onclick="addMp4Track()" class="bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl transition shadow">MP4 비디오 저장</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Queue, Video Engine & Lyrics -->
+      <section id="content-section" class="lg:col-span-8 flex flex-col gap-6">
+        
+        <!-- Track List Container -->
+        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+              <h2 id="current-playlist-title" class="font-bold text-base flex items-center gap-2 text-slate-900 dark:text-white">
+                <i class="fa-solid fa-music text-indigo-500"></i> 기본 재생목록
+              </h2>
+              <button type="button" onclick="renameCurrentPlaylist()" class="text-slate-400 hover:text-indigo-400 text-xs p-1.5 transition" title="플레이리스트 이름 수정">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="track-count-badge" class="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-indigo-600 dark:text-indigo-400 text-xs px-2.5 py-1 rounded-xl font-bold">0곡</span>
+              <button type="button" id="add-shortcut-btn" onclick="focusTrackInput()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-2.5 py-1.5 rounded-xl font-semibold shadow transition flex items-center gap-1" title="트랙 추가하기">
+                <i class="fa-solid fa-plus"></i> <span id="add-text-label">추가</span>
+              </button>
+              <input type="text" id="track-search-input" oninput="filterTracks(this.value)" placeholder="검색..." class="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white rounded-xl px-3 py-1.5 outline-none transition w-28 sm:w-36">
+            </div>
+          </div>
+          <!-- Synchronized Scrollable Track List -->
+          <div id="track-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- Screen Viewport Container -->
+          <div id="screen-container" class="bg-white/80 dark:bg-slate-900/80 backdrop-blur border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col items-center justify-center min-h-[300px] sm:min-h-[360px] relative overflow-hidden group shadow-xl">
+            
+            <!-- MP4 Native Engine Viewport -->
+            <div id="video-display-container" class="w-full h-full min-h-[260px] bg-black rounded-2xl overflow-hidden hidden relative flex items-center justify-center shadow-inner">
+              <video id="mp4-video-engine" class="w-full h-full object-contain" playsinline webkit-playsinline></video>
+            </div>
+
+            <!-- YouTube iFrame Player Viewport -->
+            <div id="youtube-box" class="w-full h-full min-h-[260px] rounded-2xl overflow-hidden hidden relative pointer-events-auto">
+              <div id="yt-player-target" class="w-full h-full pointer-events-auto"></div>
+            </div>
+
+            <!-- Disc Audio Visualizer Viewport -->
+            <div id="disc-view" class="flex flex-col items-center justify-center my-auto p-4">
+              <div id="disc" class="w-36 h-36 sm:w-48 sm:h-48 rounded-full bg-slate-900 border-8 border-slate-800 flex items-center justify-center shadow-2xl transition-all">
+                <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-inner">
+                  <i class="fa-solid fa-compact-disc"></i>
+                </div>
+              </div>
+              <p id="audio-viz-text" class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 mt-4 text-center tracking-wide">멜론 스타일 뮤직 스튜디오</p>
+            </div>
+
+            <!-- Fullscreen Floating Overlay Controls -->
+            <div id="fs-floating-controls" class="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex flex-col gap-3 z-30 fs-controls-hidden">
+              <div class="flex items-center justify-between text-white mb-1">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow">
+                    <i class="fa-solid fa-music"></i>
+                  </div>
+                  <div>
+                    <h4 id="fs-bar-title" class="font-bold text-sm truncate max-w-xs sm:max-w-md">재생 중인 곡 없음</h4>
+                    <p id="fs-bar-artist" class="text-xs text-slate-300 truncate">아티스트</p>
+                  </div>
+                </div>
+                <button type="button" onclick="toggleFsDrawer()" class="bg-slate-800/80 hover:bg-slate-700 text-white text-xs px-3.5 py-2 rounded-xl backdrop-blur font-semibold border border-slate-700 flex items-center gap-1.5 transition">
+                  <i class="fa-solid fa-list-ul text-indigo-400"></i> <span id="fs-playlist-label">재생목록</span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3 text-xs text-slate-300 font-mono">
+                <span id="fs-current-time">0:00</span>
+                <input type="range" id="fs-progress-bar" min="0" max="100" value="0" oninput="seekTrack(this.value)" class="flex-1 cursor-pointer corvexyn-progress-bar">
+                <span id="fs-duration">0:00</span>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 w-36">
+                  <button type="button" onclick="toggleMute()" id="fs-mute-btn" class="text-slate-300 hover:text-white text-sm"><i class="fa-solid fa-volume-high"></i></button>
+                  <input type="range" id="fs-volume-slider" min="0" max="100" value="80" oninput="setVolume(this.value)" class="w-full cursor-pointer corvexyn-sound-bar">
+                </div>
+
+                <div class="flex items-center gap-4 text-white">
+                  <button type="button" onclick="skipTime(-5)" class="bg-slate-800/80 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl font-semibold text-xs transition border border-slate-700">-5s</button>
+                  <button type="button" onclick="playPrevTrack()" class="hover:text-indigo-400 text-base"><i class="fa-solid fa-backward-step"></i></button>
+                  <button type="button" id="fs-play-pause-btn" onclick="togglePlayPause()" class="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center text-lg shadow-xl active:scale-95">
+                    <i class="fa-solid fa-play ml-0.5" id="fsPlayIcon"></i>
+                  </button>
+                  <button type="button" onclick="playNextTrack()" class="hover:text-indigo-400 text-base"><i class="fa-solid fa-forward-step"></i></button>
+                  <button type="button" onclick="skipTime(5)" class="bg-slate-800/80 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl font-semibold text-xs transition border border-slate-700">+5s</button>
+                </div>
+
+                <div class="w-36 flex items-center justify-end gap-2">
+                  <button type="button" onclick="toggleLandscapeRotate()" class="bg-slate-800/80 hover:bg-slate-700 text-white p-2.5 rounded-xl text-xs backdrop-blur border border-slate-700 hidden sm:inline-flex" id="rotate-btn" title="화면 회전">
+                    <i class="fa-solid fa-rotate"></i>
+                  </button>
+                  <button type="button" onclick="toggleNativeFullscreen()" class="bg-slate-800/80 hover:bg-slate-700 text-white p-2.5 rounded-xl text-xs backdrop-blur border border-slate-700" title="전체화면 종료">
+                    <i class="fa-solid fa-compress" id="fs-exit-icon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide-over Playlist Drawer inside Fullscreen -->
+            <div id="fs-playlist-drawer" class="absolute top-0 right-0 bottom-0 w-80 bg-slate-900/95 backdrop-blur-2xl border-l border-slate-800 p-5 shadow-2xl z-40 transform translate-x-full transition-transform duration-300 flex flex-col text-white">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                <h4 id="fs-drawer-title" class="font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-list text-indigo-400"></i> 재생목록 트랙</h4>
+                <button type="button" onclick="toggleFsDrawer()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+              </div>
+              <div id="fs-drawer-track-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1"></div>
+            </div>
+
+            <div class="absolute top-3 right-3 flex gap-2 z-20">
+              <button type="button" onclick="toggleLandscapeRotate()" class="bg-slate-900/80 hover:bg-slate-800 text-white p-2 rounded-xl text-xs transition shadow-lg backdrop-blur sm:hidden" title="화면 회전"><i class="fa-solid fa-rotate"></i></button>
+              <button type="button" onclick="toggleNativeFullscreen()" class="bg-slate-900/80 hover:bg-slate-800 text-white p-2 rounded-xl text-xs transition shadow-lg backdrop-blur" title="전체화면"><i class="fa-solid fa-expand" id="fs-enter-icon"></i></button>
+            </div>
+          </div>
+
+          <!-- Synchronized Lyrics Window -->
+          <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col shadow-xl">
+            <div class="flex items-center justify-between mb-2">
+              <h3 id="lyrics-header-title" class="font-bold text-xs flex items-center gap-1.5 text-slate-900 dark:text-slate-200">
+                <i class="fa-solid fa-align-left text-indigo-500"></i> 실시간 싱크 가사
+              </h3>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="autoGenerateLyrics()" class="text-[11px] bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-500/30 px-2.5 py-1 rounded-xl transition font-semibold" title="스마트 가사 자동 생성">
+                  <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> <span id="smart-lyrics-label">스마트 가사</span>
+                </button>
+                <button type="button" onclick="openLyricsEditor()" class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-xl transition font-semibold border border-slate-200 dark:border-slate-700">
+                  <i class="fa-solid fa-pen-to-square mr-1"></i> <span id="lyrics-edit-label">편집</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="lyrics-container" class="flex-1 min-h-[160px] max-h-[190px] overflow-y-auto text-center flex flex-col justify-center pr-1 space-y-1">
+              <p id="lyrics-empty-text" class="text-slate-400 dark:text-slate-500 text-xs my-auto">재생 중인 곡의 가사가 없습니다.<br>[스마트 가사] 버튼을 눌러보세요!</p>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+    </main>
+
+    <!-- Bottom Sticky Player Control Bar -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-3 z-40 shadow-2xl">
+      <div class="max-w-7xl mx-auto flex flex-col xl:flex-row items-center justify-between gap-3">
+        
+        <!-- Currently Playing Track Info -->
+        <div class="flex items-center gap-3 w-full xl:w-1/4 justify-between xl:justify-start">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-indigo-600 flex items-center justify-center text-white flex-shrink-0 shadow-lg">
+              <i class="fa-solid fa-music"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h3 id="bar-title" class="font-bold text-xs sm:text-sm truncate text-slate-900 dark:text-white">재생 중인 곡 없음</h3>
+              <p id="bar-artist" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">트랙을 선택해주세요</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Central Audio Playback & Progress Controls -->
+        <div class="flex flex-col items-center gap-1.5 w-full xl:w-1/2">
+          <div class="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+            <button type="button" id="shuffle-btn" onclick="toggleShuffle()" class="text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 rounded-xl transition" title="Shuffle"><i class="fa-solid fa-shuffle text-xs sm:text-sm"></i></button>
+            <button type="button" onclick="skipTime(-5)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] sm:text-xs px-2 py-1.5 rounded-xl font-semibold transition border border-slate-200 dark:border-slate-700" title="5초 뒤로">-5초</button>
+            <button type="button" onclick="playPrevTrack()" class="text-slate-700 dark:text-slate-200 hover:text-indigo-500 p-2 rounded-xl transition" title="Previous"><i class="fa-solid fa-backward-step text-base sm:text-lg"></i></button>
+            
+            <button type="button" id="play-pause-btn" onclick="togglePlayPause()" class="w-11 h-11 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center transition shadow-lg active:scale-95 flex-shrink-0">
+              <i class="fa-solid fa-play ml-0.5 text-lg" id="playIcon"></i>
+            </button>
+            
+            <button type="button" onclick="playNextTrack()" class="text-slate-700 dark:text-slate-200 hover:text-indigo-500 p-2 rounded-xl transition" title="Next"><i class="fa-solid fa-forward-step text-base sm:text-lg"></i></button>
+            <button type="button" onclick="skipTime(5)" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] sm:text-xs px-2 py-1.5 rounded-xl font-semibold transition border border-slate-200 dark:border-slate-700" title="5초 앞으로">+5초</button>
+            <button type="button" id="repeat-btn" onclick="toggleRepeat()" class="text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 rounded-xl transition" title="Repeat"><i class="fa-solid fa-repeat text-xs sm:text-sm"></i></button>
+          </div>
+
+          <!-- Real-time Progress Bar -->
+          <div class="flex items-center gap-2.5 w-full text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono">
+            <span id="current-time">0:00</span>
+            <input type="range" id="progress-bar" min="0" max="100" value="0" oninput="seekTrack(this.value)" class="flex-1 cursor-pointer corvexyn-progress-bar">
+            <span id="duration">0:00</span>
+          </div>
+        </div>
+
+        <!-- Speed Selector & Volume Controls -->
+        <div class="hidden xl:flex items-center justify-end gap-3 w-1/4">
+          <select id="playback-speed" onchange="setPlaybackSpeed(this.value)" class="bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-200 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none cursor-pointer">
+            <option value="0.5">0.5x</option>
+            <option value="0.8">0.8x</option>
+            <option value="1.0" selected>1.0x</option>
+            <option value="1.2">1.2x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2.0">2.0x</option>
+          </select>
+
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="toggleMute()" id="mute-btn" class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-xs"><i class="fa-solid fa-volume-high"></i></button>
+            <input type="range" id="volume-slider" min="0" max="100" value="80" oninput="setVolume(this.value)" class="w-20 cursor-pointer corvexyn-sound-bar">
+          </div>
+        </div>
+
+      </div>
+    </footer>
+
+    <!-- Native Audio Engine -->
+    <audio id="audio-engine" class="hidden" preload="auto" playsinline webkit-playsinline></audio>
+  </div>
+
+  <!-- Playlist Select Modal for Track Copy -->
+  <div id="playlist-select-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-6 w-full max-w-sm flex flex-col gap-4 text-slate-900 dark:text-white">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 id="modal-pl-add-title" class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-folder-plus text-indigo-500"></i> 플레이리스트에 추가</h3>
+        <button type="button" onclick="closePlaylistSelectModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <p id="modal-pl-desc" class="text-xs text-slate-500 dark:text-slate-400">이 곡을 추가할 대상 플레이리스트를 선택하세요:</p>
+      <div id="modal-playlist-options" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+      <div class="flex items-center justify-end gap-2 pt-2 text-xs font-semibold">
+        <button type="button" id="modal-cancel-btn" onclick="closePlaylistSelectModal()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 px-4 py-2.5 rounded-xl transition text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700">취소</button>
+        <button type="button" id="modal-confirm-btn" onclick="confirmAddToPlaylist()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl transition shadow">추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme Selection Modal -->
+  <div id="theme-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-6 w-full max-w-sm flex flex-col gap-4 text-slate-900 dark:text-white">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 id="theme-modal-title" class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-circle-half-stroke text-indigo-500"></i> 테마 설정</h3>
+        <button type="button" onclick="closeThemeModal()" class="text-slate-400 hover:text-slate-900 dark:hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="space-y-2.5 text-xs font-semibold">
+        <button type="button" onclick="setThemeMode('dark')" class="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/60 hover:bg-indigo-600 hover:text-white text-left transition flex items-center justify-between">
+          <span id="theme-dark-label">🌙 다크 테마</span>
+        </button>
+        <button type="button" onclick="setThemeMode('light')" class="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/60 hover:bg-indigo-600 hover:text-white text-left transition flex items-center justify-between">
+          <span id="theme-light-label">☀️ 라이트 테마</span>
+        </button>
+        <button type="button" onclick="setThemeMode('system')" class="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/60 hover:bg-indigo-600 hover:text-white text-left transition flex items-center justify-between">
+          <span id="theme-system-label">💻 기기 시스템 테마 연동</span>
+        </button>
+      </div>
+      <div class="flex justify-end pt-2">
+        <button type="button" id="theme-confirm-btn" onclick="closeThemeModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio EQ & Settings Modal -->
+  <div id="settings-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-6 w-full max-w-md flex flex-col gap-5 text-slate-900 dark:text-white">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 id="eq-modal-title" class="font-bold text-base flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-indigo-500"></i> 오디오 이퀄라이저 (EQ) 설정
+        </h3>
+        <button type="button" onclick="closeSettingsModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label id="eq-label" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">EQ 음장 프리셋 선택</label>
+          <select id="eq-preset-select" onchange="applyEqPreset(this.value)" class="w-full bg-slate-100 dark:bg-slate-950 text-xs text-slate-900 dark:text-white rounded-xl p-3 border border-slate-200 dark:border-slate-800 outline-none cursor-pointer font-medium">
+            <option value="normal" id="eq-opt-normal">기본 (Normal)</option>
+            <option value="bass" id="eq-opt-bass">베이스 부스트 (Deep Bass)</option>
+            <option value="vocal" id="eq-opt-vocal">보컬 선명함 (Vocal Boost)</option>
+            <option value="rock" id="eq-opt-rock">락 / 팝 (Rock / Pop)</option>
+            <option value="classical" id="eq-opt-classical">클래식 / 어쿠스틱 (Acoustic)</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end pt-2">
+        <button type="button" id="eq-confirm-btn" onclick="closeSettingsModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LRC Lyrics Editor Modal -->
+  <div id="lyrics-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-6 w-full max-w-lg flex flex-col gap-4 text-slate-900 dark:text-white">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
+        <h3 id="lyrics-editor-title" class="font-bold text-base flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-indigo-500"></i> LRC 싱크 가사 편집
+        </h3>
+        <button type="button" onclick="closeLyricsEditor()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <textarea id="lyrics-textarea" rows="10" placeholder="[00:02.00] Line 1&#10;[00:08.50] Line 2" class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-indigo-500 transition leading-relaxed"></textarea>
+      <div class="flex items-center justify-end gap-2 text-xs font-semibold">
+        <button type="button" id="lyrics-cancel-btn" onclick="closeLyricsEditor()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 px-4 py-2.5 rounded-xl transition text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700">취소</button>
+        <button type="button" id="lyrics-save-btn" onclick="saveLyrics()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl transition shadow">가사 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- YouTube iFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <script>
+    const PIN_PASSCODE = "0124";
+    window.playlists = [{ id: 'default', name: '기본 재생목록', tracks: [] }];
+    window.currentPlaylistId = 'default';
+    window.currentTrackIndex = -1;
+    window.isPlaying = false;
+    window.isShuffle = false;
+    window.isRepeat = false;
+    window.isMuted = false;
+    window.previousVolume = 80;
+    window.ytPlayer = null;
+    window.isYtReady = false;
+    window.currentParsedLyrics = [];
+    window.currentLang = localStorage.getItem('corvexyn_lang') || 'ko';
+    window.deviceMode = localStorage.getItem('corvexyn_device_mode') || 'computer';
+    window.themeMode = localStorage.getItem('corvexyn_theme_mode') || 'dark';
+    window.selectedTrackForCopy = null;
+    window.targetPlaylistForCopy = null;
+
+    // Multilingual Dictionary (i18n)
+    const i18n = {
+      ko: {
+        pinSub: "보안 PIN 인증",
+        wrongPin: "비밀번호가 올바르지 않습니다.",
+        uiComp: "컴퓨터 스튜디오 UI",
+        uiMob: "모바일 포터블 UI",
+        toMob: "모바일 UI로 전환",
+        toComp: "컴퓨터 UI로 전환",
+        backup: "백업",
+        restore: "복원",
+        plStorage: "재생목록 보관함",
+        newPl: "+ 새 목록",
+        trackRegister: "트랙 등록하기",
+        ytTitle: "곡 제목 (자동 불러오는 중...)",
+        ytArtist: "아티스트",
+        ytSubmit: "유튜브 트랙 등록",
+        mp3Title: "곡 제목",
+        mp3Artist: "아티스트",
+        mp3File: "MP3 음원 파일 선택",
+        mp3Submit: "MP3 트랙 저장",
+        mp4Title: "영상 제목",
+        mp4Artist: "아티스트 / 제작자",
+        mp4File: "MP4 동영상 파일 선택",
+        mp4Submit: "MP4 비디오 저장",
+        defaultPlName: "기본 재생목록",
+        addBtn: "추가",
+        searchPlaceholder: "검색...",
+        noTrack: "등록된 트랙이 없습니다. [+] 버튼을 눌러 추가하세요!",
+        audioViz: "멜론 스타일 뮤직 스튜디오",
+        fsPlaylist: "재생목록",
+        fsDrawerTitle: "재생목록 트랙",
+        lyricsTitle: "실시간 싱크 가사",
+        smartLyrics: "스마트 가사",
+        lyricsEdit: "편집",
+        lyricsEmpty: "재생 중인 곡의 가사가 없습니다.<br>[스마트 가사] 버튼을 눌러보세요!",
+        noTrackPlaying: "재생 중인 곡 없음",
+        selectTrackPrompt: "트랙을 선택해주세요",
+        modalPlTitle: "플레이리스트에 추가",
+        modalPlDesc: "이 곡을 추가할 대상 플레이리스트를 선택하세요:",
+        cancel: "취소",
+        confirm: "확인",
+        themeTitle: "테마 설정",
+        themeDark: "🌙 다크 테마",
+        themeLight: "☀️ 라이트 테마",
+        themeSys: "💻 기기 시스템 테마 연동",
+        eqTitle: "오디오 이퀄라이저 (EQ) 설정",
+        eqLabel: "EQ 음장 프리셋 선택",
+        eqNormal: "기본 (Normal)",
+        eqBass: "베이스 부스트 (Deep Bass)",
+        eqVocal: "보컬 선명함 (Vocal Boost)",
+        eqRock: "락 / 팝 (Rock / Pop)",
+        eqClassical: "클래식 / 어쿠스틱 (Acoustic)",
+        lyricsEditorTitle: "LRC 싱크 가사 편집",
+        lyricsSave: "가사 저장",
+        alertNoTrack: "재생 중인 트랙이 없습니다.",
+        alertSelectPl: "추가할 플레이리스트를 선택해주세요.",
+        backupSuccess: "백업 파일 복원이 완료되었습니다!",
+        invalidBackup: "유효하지 않은 백업 파일입니다."
+      },
+      en: {
+        pinSub: "Security PIN Verification",
+        wrongPin: "Incorrect passcode.",
+        uiComp: "Computer Studio UI",
+        uiMob: "Mobile Portable UI",
+        toMob: "Switch to Mobile UI",
+        toComp: "Switch to Computer UI",
+        backup: "Backup",
+        restore: "Restore",
+        plStorage: "Playlist Library",
+        newPl: "+ New List",
+        trackRegister: "Register Track",
+        ytTitle: "Track Title (Auto Fetching...)",
+        ytArtist: "Artist",
+        ytSubmit: "Add YouTube Track",
+        mp3Title: "Track Title",
+        mp3Artist: "Artist",
+        mp3File: "Select MP3 Audio File",
+        mp3Submit: "Save MP3 Track",
+        mp4Title: "Video Title",
+        mp4Artist: "Artist / Creator",
+        mp4File: "Select MP4 Video File",
+        mp4Submit: "Save MP4 Video",
+        defaultPlName: "Default Playlist",
+        addBtn: "Add",
+        searchPlaceholder: "Search...",
+        noTrack: "No tracks registered. Click [+] to add one!",
+        audioViz: "Melon Style Music Studio",
+        fsPlaylist: "Playlist",
+        fsDrawerTitle: "Playlist Tracks",
+        lyricsTitle: "Live Synchronized Lyrics",
+        smartLyrics: "Smart Lyrics",
+        lyricsEdit: "Edit",
+        lyricsEmpty: "No lyrics for current track.<br>Click [Smart Lyrics] to generate!",
+        noTrackPlaying: "No Track Playing",
+        selectTrackPrompt: "Please select a track",
+        modalPlTitle: "Add to Playlist",
+        modalPlDesc: "Select destination playlist for this track:",
+        cancel: "Cancel",
+        confirm: "Confirm",
+        themeTitle: "Theme Settings",
+        themeDark: "🌙 Dark Theme",
+        themeLight: "☀️ Light Theme",
+        themeSys: "💻 System Theme Sync",
+        eqTitle: "Audio Equalizer (EQ)",
+        eqLabel: "Select EQ Preset",
+        eqNormal: "Normal",
+        eqBass: "Deep Bass",
+        eqVocal: "Vocal Boost",
+        eqRock: "Rock / Pop",
+        eqClassical: "Acoustic",
+        lyricsEditorTitle: "LRC Sync Lyrics Editor",
+        lyricsSave: "Save Lyrics",
+        alertNoTrack: "No track currently playing.",
+        alertSelectPl: "Please select a target playlist.",
+        backupSuccess: "Backup restored successfully!",
+        invalidBackup: "Invalid backup file."
+      }
+    };
+
+    function t(key) {
+      return i18n[window.currentLang]?.[key] || i18n['ko'][key] || key;
+    }
+
+    function updateLanguageUI() {
+      document.getElementById('pin-sub-text').textContent = t('pinSub');
+      document.getElementById('pin-error').textContent = t('wrongPin');
+      document.getElementById('ui-mode-tag').textContent = window.deviceMode === 'computer' ? t('uiComp') : t('uiMob');
+      document.getElementById('device-text').textContent = window.deviceMode === 'computer' ? t('toMob') : t('toComp');
+      document.getElementById('backup-btn').innerHTML = `<i class="fa-solid fa-download text-emerald-500"></i> ${t('backup')}`;
+      document.getElementById('restore-text').textContent = t('restore');
+      document.getElementById('pl-storage-title').innerHTML = `<i class="fa-solid fa-folder-closed text-indigo-500"></i> ${t('plStorage')}`;
+      document.getElementById('new-pl-btn').textContent = t('newPl');
+      document.getElementById('track-register-title').innerHTML = `<i class="fa-solid fa-circle-plus text-emerald-500"></i> ${t('trackRegister')}`;
+      
+      document.getElementById('yt-title').placeholder = t('ytTitle');
+      document.getElementById('yt-artist').placeholder = t('ytArtist');
+      document.getElementById('yt-submit-btn').textContent = t('ytSubmit');
+
+      document.getElementById('mp3-title').placeholder = t('mp3Title');
+      document.getElementById('mp3-artist').placeholder = t('mp3Artist');
+      document.getElementById('mp3-file-label').textContent = t('mp3File');
+      document.getElementById('mp3-submit-btn').textContent = t('mp3Submit');
+
+      document.getElementById('mp4-title').placeholder = t('mp4Title');
+      document.getElementById('mp4-artist').placeholder = t('mp4Artist');
+      document.getElementById('mp4-file-label').textContent = t('mp4File');
+      document.getElementById('mp4-submit-btn').textContent = t('mp4Submit');
+
+      document.getElementById('add-text-label').textContent = t('addBtn');
+      document.getElementById('track-search-input').placeholder = t('searchPlaceholder');
+      document.getElementById('audio-viz-text').textContent = t('audioViz');
+      document.getElementById('fs-playlist-label').textContent = t('fsPlaylist');
+      document.getElementById('fs-drawer-title').innerHTML = `<i class="fa-solid fa-list text-indigo-400"></i> ${t('fsDrawerTitle')}`;
+      document.getElementById('lyrics-header-title').innerHTML = `<i class="fa-solid fa-align-left text-indigo-500"></i> ${t('lyricsTitle')}`;
+      document.getElementById('smart-lyrics-label').textContent = t('smartLyrics');
+      document.getElementById('lyrics-edit-label').textContent = t('lyricsEdit');
+
+      if (window.currentTrackIndex < 0) {
+        document.getElementById('bar-title').textContent = t('noTrackPlaying');
+        document.getElementById('bar-artist').textContent = t('selectTrackPrompt');
+        document.getElementById('fs-bar-title').textContent = t('noTrackPlaying');
+        document.getElementById('fs-bar-artist').textContent = t('selectTrackPrompt');
+        document.getElementById('lyrics-empty-text').innerHTML = `${t('lyricsEmpty')}`;
+      }
+
+      document.getElementById('modal-pl-add-title').innerHTML = `<i class="fa-solid fa-folder-plus text-indigo-500"></i> ${t('modalPlTitle')}`;
+      document.getElementById('modal-pl-desc').textContent = t('modalPlDesc');
+      document.getElementById('modal-cancel-btn').textContent = t('cancel');
+      document.getElementById('modal-confirm-btn').textContent = t('confirm');
+
+      document.getElementById('theme-modal-title').innerHTML = `<i class="fa-solid fa-circle-half-stroke text-indigo-500"></i> ${t('themeTitle')}`;
+      document.getElementById('theme-dark-label').textContent = t('themeDark');
+      document.getElementById('theme-light-label').textContent = t('themeLight');
+      document.getElementById('theme-system-label').textContent = t('themeSys');
+      document.getElementById('theme-confirm-btn').textContent = t('confirm');
+
+      document.getElementById('eq-modal-title').innerHTML = `<i class="fa-solid fa-sliders text-indigo-500"></i> ${t('eqTitle')}`;
+      document.getElementById('eq-label').textContent = t('eqLabel');
+      document.getElementById('eq-opt-normal').textContent = t('eqNormal');
+      document.getElementById('eq-opt-bass').textContent = t('eqBass');
+      document.getElementById('eq-opt-vocal').textContent = t('eqVocal');
+      document.getElementById('eq-opt-rock').textContent = t('eqRock');
+      document.getElementById('eq-opt-classical').textContent = t('eqClassical');
+      document.getElementById('eq-confirm-btn').textContent = t('confirm');
+
+      document.getElementById('lyrics-editor-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-500"></i> ${t('lyricsEditorTitle')}`;
+      document.getElementById('lyrics-cancel-btn').textContent = t('cancel');
+      document.getElementById('lyrics-save-btn').textContent = t('lyricsSave');
+    }
+
+    // DB Init
+    const dbName = "CorvexynMediaDB";
+    let dbInstance = null;
+
+    function initDB() {
+      return new Promise((resolve) => {
+        const req = indexedDB.open(dbName, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains("mediaFiles")) db.createObjectStore("mediaFiles");
+        };
+        req.onsuccess = (e) => { dbInstance = e.target.result; resolve(dbInstance); };
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    async function saveMediaToDB(key, dataUrl) {
+      if (!dbInstance) await initDB();
+      if (!dbInstance) return;
+      return new Promise((resolve) => {
+        try {
+          const tx = dbInstance.transaction("mediaFiles", "readwrite");
+          const store = tx.objectStore("mediaFiles");
+          const req = store.put(dataUrl, key);
+          req.onsuccess = () => resolve();
+          req.onerror = () => resolve();
+        } catch(e) { resolve(); }
+      });
+    }
+
+    async function getMediaFromDB(key) {
+      if (!dbInstance) await initDB();
+      if (!dbInstance) return null;
+      return new Promise((resolve) => {
+        try {
+          const tx = dbInstance.transaction("mediaFiles", "readonly");
+          const store = tx.objectStore("mediaFiles");
+          const req = store.get(key);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        } catch(e) { resolve(null); }
+      });
+    }
+
+    function dataURLtoBlobUrl(dataurl) {
+      if (!dataurl) return null;
+      try {
+        if (dataurl.startsWith('blob:') || dataurl.startsWith('http')) return dataurl;
+        const arr = dataurl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) u8arr[n] = bstr.charCodeAt(n);
+        const blob = new Blob([u8arr], { type: mime });
+        return URL.createObjectURL(blob);
+      } catch(e) { return dataurl; }
+    }
+
+    // PIN Verification
+    let inputPin = "";
+    function pressPin(digit) {
+      if (inputPin.length < 4) {
+        inputPin += digit;
+        updatePinDots();
+        if (inputPin.length === 4) verifyPin();
+      }
+    }
+    function backspacePin() {
+      if (inputPin.length > 0) {
+        inputPin = inputPin.slice(0, -1);
+        updatePinDots();
+      }
+    }
+    function clearPin() {
+      inputPin = "";
+      updatePinDots();
+    }
+    function updatePinDots() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        if (i < inputPin.length) {
+          dot.classList.add('bg-indigo-500', 'border-indigo-400');
+          dot.classList.remove('bg-slate-800/50', 'border-slate-700');
+        } else {
+          dot.classList.remove('bg-indigo-500', 'border-indigo-400');
+          dot.classList.add('bg-slate-800/50', 'border-slate-700');
+        }
+      }
+    }
+    function verifyPin() {
+      if (inputPin === PIN_PASSCODE) {
+        document.getElementById('pin-modal').classList.add('hidden');
+        document.getElementById('app-container').classList.remove('hidden');
+        initializeApp();
+      } else {
+        const errEl = document.getElementById('pin-error');
+        errEl.classList.remove('opacity-0');
+        setTimeout(() => {
+          errEl.classList.add('opacity-0');
+          inputPin = "";
+          updatePinDots();
+        }, 1200);
+      }
+    }
+
+    function initializeApp() {
+      initDB();
+      loadLocalStorage();
+      applyTheme(themeMode);
+      applyDeviceMode(deviceMode);
+      document.getElementById('lang-select').value = window.currentLang;
+      updateLanguageUI();
+      renderPlaylists();
+      renderTracks();
+      setupAudioListeners();
+      setupFullscreenEvents();
+      setupMediaSession();
+      setupVolumeKeyListeners();
+      initMelonStyleBackgroundEngine();
+      setVolume(80);
+      
+      // 실시간 재생 위치 및 유튜브 종료 감지 루프
+      setInterval(() => {
+        if (!window.isPlaying) return;
+        const tracks = getCurrentPlaylist().tracks;
+        const track = tracks[window.currentTrackIndex];
+        if (!track) return;
+        
+        if (track.type === 'youtube' && window.ytPlayer && typeof window.ytPlayer.getCurrentTime === 'function') {
+          try {
+            const curr = window.ytPlayer.getCurrentTime();
+            const dur = window.ytPlayer.getDuration() || 0;
+            if (dur > 0) {
+              updateProgress(curr, dur);
+              // 곡 끝나기 0.5초 전 혹은 종료 상태 감지 시 즉시 다음 곡으로 전환
+              if (curr >= dur - 0.6) {
+                handleTrackEnded();
+              }
+            }
+
+            const ytState = window.ytPlayer.getPlayerState();
+            if (ytState === YT.PlayerState.PAUSED && window.isPlaying) {
+              window.isPlaying = false;
+              updatePlayPauseUI();
+            } else if (ytState === YT.PlayerState.PLAYING && !window.isPlaying) {
+              window.isPlaying = true;
+              updatePlayPauseUI();
+            }
+          } catch(e) {}
+        }
+      }, 100);
+    }
+
+    // [멜론 스타일] 백그라운드 끊김 방지 사운드 엔진 (Silent Audio Context Keep-Alive)
+    let melonAudioCtx = null;
+    let melonGainNode = null;
+
+    function initMelonStyleBackgroundEngine() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          melonAudioCtx = new AudioContext();
+          melonGainNode = melonAudioCtx.createGain();
+          melonGainNode.gain.value = 0.0001; // 완전 무음 펄스로 백그라운드 세션 유지
+          melonGainNode.connect(melonAudioCtx.destination);
+          
+          // 백그라운드 무한 유지 오실레이터 펄스
+          const osc = melonAudioCtx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.value = 440;
+          osc.connect(melonGainNode);
+          osc.start();
+        }
+      } catch(e) {}
+    }
+
+    function triggerMelonKeepAlive() {
+      if (melonAudioCtx && melonAudioCtx.state === 'suspended') {
+        melonAudioCtx.resume();
+      }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && window.isPlaying) {
+        triggerMelonKeepAlive();
+        const tracks = getCurrentPlaylist().tracks;
+        const track = tracks[window.currentTrackIndex];
+        if (track && track.type === 'youtube' && window.ytPlayer) {
+          try { window.ytPlayer.playVideo(); } catch(e) {}
+        }
+      }
+    });
+
+    function setupVolumeKeyListeners() {
+      window.addEventListener('keydown', (e) => {
+        const mainSlider = document.getElementById('volume-slider');
+        if (!mainSlider) return;
+        let currentVol = parseInt(mainSlider.value);
+
+        if (e.key === 'AudioVolumeUp' || e.code === 'AudioVolumeUp' || e.keyCode === 175) {
+          e.preventDefault();
+          currentVol = Math.min(100, currentVol + 5);
+          setVolume(currentVol);
+        } else if (e.key === 'AudioVolumeDown' || e.code === 'AudioVolumeDown' || e.keyCode === 174) {
+          e.preventDefault();
+          currentVol = Math.max(0, currentVol - 5);
+          setVolume(currentVol);
+        } else if (e.key === 'AudioVolumeMute' || e.code === 'AudioVolumeMute' || e.keyCode === 173) {
+          e.preventDefault();
+          toggleMute();
+        }
+      });
+    }
+
+    function setupMediaSession() {
+      if ('mediaSession' in navigator) {
+        try {
+          navigator.mediaSession.setActionHandler('play', () => { togglePlayPause(); });
+          navigator.mediaSession.setActionHandler('pause', () => { togglePlayPause(); });
+          navigator.mediaSession.setActionHandler('previoustrack', () => { playPrevTrack(); });
+          navigator.mediaSession.setActionHandler('nexttrack', () => { playNextTrack(); });
+          
+          navigator.mediaSession.setActionHandler('seekbackward', null);
+          navigator.mediaSession.setActionHandler('seekforward', null);
+          navigator.mediaSession.setActionHandler('seekto', null);
+        } catch(e) {}
+      }
+    }
+
+    function updateMediaSessionMetadata(track) {
+      if ('mediaSession' in navigator && track) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: track.title || 'Corvexyn Music',
+          artist: track.artist || 'Pro Studio',
+          artwork: [{ src: 'https://cdn-icons-png.flaticon.com/512/3209/3209265.png', sizes: '512x512', type: 'image/png' }]
+        });
+      }
+    }
+
+    function changeLanguage(lang) {
+      window.currentLang = lang;
+      localStorage.setItem('corvexyn_lang', lang);
+      updateLanguageUI();
+      renderTracks();
+      renderFsDrawerTracks();
+    }
+
+    function openThemeModal() { document.getElementById('theme-modal').classList.remove('hidden'); }
+    function closeThemeModal() { document.getElementById('theme-modal').classList.add('hidden'); }
+    function setThemeMode(mode) {
+      themeMode = mode;
+      localStorage.setItem('corvexyn_theme_mode', mode);
+      applyTheme(mode);
+      closeThemeModal();
+    }
+    function applyTheme(mode) {
+      const root = document.documentElement;
+      if (mode === 'dark') {
+        root.classList.add('dark');
+      } else if (mode === 'light') {
+        root.classList.remove('dark');
+      } else {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          root.classList.add('dark');
+        } else {
+          root.classList.remove('dark');
+        }
+      }
+    }
+
+    function toggleDeviceMode() {
+      deviceMode = deviceMode === 'computer' ? 'mobile' : 'computer';
+      localStorage.setItem('corvexyn_device_mode', deviceMode);
+      applyDeviceMode(deviceMode);
+      updateLanguageUI();
+    }
+    function applyDeviceMode(mode) {
+      const wrapper = document.getElementById('main-layout-wrapper');
+      const sidebar = document.getElementById('sidebar-section');
+      const icon = document.getElementById('device-icon');
+
+      if (mode === 'mobile') {
+        wrapper.className = "flex-1 max-w-xl w-full mx-auto p-3 sm:p-6 flex flex-col gap-6 pb-40";
+        sidebar.className = "flex flex-col gap-6 order-2";
+        document.getElementById('content-section').className = "flex flex-col gap-6 order-1";
+        icon.className = "fa-solid fa-mobile-screen text-emerald-500";
+      } else {
+        wrapper.className = "flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 pb-40";
+        sidebar.className = "lg:col-span-4 flex flex-col gap-6 order-1";
+        document.getElementById('content-section').className = "lg:col-span-8 flex flex-col gap-6 order-1";
+        icon.className = "fa-solid fa-desktop text-indigo-500";
+      }
+    }
+
+    function renameCurrentPlaylist() {
+      const pl = getCurrentPlaylist();
+      const newName = prompt(window.currentLang === 'en' ? "Enter new playlist name:" : "플레이리스트 이름을 수정하세요:", pl.name);
+      if (newName && newName.trim()) {
+        pl.name = newName.trim();
+        renderPlaylists();
+        renderTracks();
+        saveLocalStorage();
+      }
+    }
+
+    function focusTrackInput() {
+      const ytTitle = document.getElementById('yt-title');
+      if (ytTitle) {
+        ytTitle.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        ytTitle.focus();
+      }
+    }
+
+    function openPlaylistSelectModal(trackIndex) {
+      const tracks = getCurrentPlaylist().tracks;
+      window.selectedTrackForCopy = tracks[trackIndex];
+      if (!window.selectedTrackForCopy) return;
+
+      const container = document.getElementById('modal-playlist-options');
+      container.innerHTML = '';
+      window.targetPlaylistForCopy = null;
+
+      window.playlists.forEach((pl) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-between transition bg-slate-100 dark:bg-slate-950 hover:bg-indigo-500/20 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800`;
+        btn.innerHTML = `<span><i class="fa-solid fa-folder mr-2 text-indigo-500"></i> ${escapeHtml(pl.name)}</span><span class="text-[10px] text-slate-400">${pl.tracks.length}곡</span>`;
+        btn.onclick = () => {
+          window.targetPlaylistForCopy = pl.id;
+          Array.from(container.children).forEach(b => b.classList.remove('border-indigo-500', 'bg-indigo-500/10'));
+          btn.classList.add('border-indigo-500', 'bg-indigo-500/10');
+        };
+        container.appendChild(btn);
+      });
+
+      document.getElementById('playlist-select-modal').classList.remove('hidden');
+    }
+
+    function closePlaylistSelectModal() {
+      document.getElementById('playlist-select-modal').classList.add('hidden');
+      window.selectedTrackForCopy = null;
+      window.targetPlaylistForCopy = null;
+    }
+
+    function confirmAddToPlaylist() {
+      if (!window.selectedTrackForCopy || !window.targetPlaylistForCopy) {
+        alert(t('alertSelectPl'));
+        return;
+      }
+      const targetPl = window.playlists.find(p => p.id === window.targetPlaylistForCopy);
+      if (targetPl) {
+        targetPl.tracks.push({ ...window.selectedTrackForCopy, id: 'track_' + Date.now() + Math.random().toString(36).substr(2, 4) });
+        saveLocalStorage();
+        renderPlaylists();
+        alert(`'${targetPl.name}' ${window.currentLang === 'en' ? 'playlist updated!' : '플레이리스트에 곡이 추가되었습니다!'}`);
+      }
+      closePlaylistSelectModal();
+    }
+
+    let fsControlsTimer = null;
+
+    function toggleNativeFullscreen() {
+      const container = document.getElementById('screen-container');
+      const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+      if (isMobileDevice) {
+        const isFakeFs = container.classList.toggle('mobile-fake-fullscreen');
+        const fsControls = document.getElementById('fs-floating-controls');
+        const enterIcon = document.getElementById('fs-enter-icon');
+        const exitIcon = document.getElementById('fs-exit-icon');
+
+        if (isFakeFs) {
+          fsControls.classList.remove('fs-controls-hidden');
+          fsControls.classList.add('fs-controls-visible');
+          if (enterIcon) enterIcon.className = "fa-solid fa-compress";
+          if (exitIcon) exitIcon.className = "fa-solid fa-compress";
+          resetFsTimer();
+        } else {
+          fsControls.classList.remove('fs-controls-visible');
+          fsControls.classList.add('fs-controls-hidden');
+          if (enterIcon) enterIcon.className = "fa-solid fa-expand";
+          if (exitIcon) exitIcon.className = "fa-solid fa-compress";
+          document.getElementById('fs-playlist-drawer').classList.add('translate-x-full');
+          if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+            try { screen.orientation.unlock(); } catch(e) {}
+          }
+        }
+      } else {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          if (container.requestFullscreen) {
+            container.requestFullscreen().catch(() => {});
+          } else if (container.webkitRequestFullscreen) {
+            container.webkitRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      }
+    }
+
+    function toggleLandscapeRotate() {
+      if (screen.orientation && typeof screen.orientation.lock === 'function') {
+        screen.orientation.lock('landscape').catch(() => {
+          alert("이 브라우저/기기에서는 자동 화면 회전 고정이 지원되지 않을 수 있습니다. 수동으로 회전해주세요.");
+        });
+      } else {
+        window.scrollTo(0, 0);
+        alert("기기 설정에서 자동 회전을 켜고 핸드폰을 가로로 돌려주세요!");
+      }
+    }
+
+    function setupFullscreenEvents() {
+      const container = document.getElementById('screen-container');
+      container.onmousemove = () => {
+        if (document.fullscreenElement || document.webkitFullscreenElement || container.classList.contains('mobile-fake-fullscreen')) {
+          showFsControls();
+          resetFsTimer();
+        }
+      };
+      container.ontouchstart = () => {
+        if (document.fullscreenElement || document.webkitFullscreenElement || container.classList.contains('mobile-fake-fullscreen')) {
+          showFsControls();
+          resetFsTimer();
+        }
+      };
+
+      document.addEventListener('fullscreenchange', handleFsChange);
+      document.addEventListener('webkitfullscreenchange', handleFsChange);
+    }
+
+    function handleFsChange() {
+      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      const fsControls = document.getElementById('fs-floating-controls');
+      if (isFs) {
+        fsControls.classList.remove('fs-controls-hidden');
+        fsControls.classList.add('fs-controls-visible');
+        resetFsTimer();
+      } else {
+        const container = document.getElementById('screen-container');
+        if (!container.classList.contains('mobile-fake-fullscreen')) {
+          fsControls.classList.remove('fs-controls-visible');
+          fsControls.classList.add('fs-controls-hidden');
+          document.getElementById('fs-playlist-drawer').classList.add('translate-x-full');
+        }
+      }
+    }
+
+    function resetFsTimer() {
+      if (fsControlsTimer) clearTimeout(fsControlsTimer);
+      fsControlsTimer = setTimeout(() => {
+        const container = document.getElementById('screen-container');
+        if (document.fullscreenElement || document.webkitFullscreenElement || container.classList.contains('mobile-fake-fullscreen')) {
+          const fsControls = document.getElementById('fs-floating-controls');
+          fsControls.classList.remove('fs-controls-visible');
+          fsControls.classList.add('fs-controls-hidden');
+        }
+      }, 4000);
+    }
+
+    function showFsControls() {
+      const fsControls = document.getElementById('fs-floating-controls');
+      fsControls.classList.remove('fs-controls-hidden');
+      fsControls.classList.add('fs-controls-visible');
+    }
+
+    function toggleFsDrawer() {
+      const drawer = document.getElementById('fs-playlist-drawer');
+      drawer.classList.toggle('translate-x-full');
+      renderFsDrawerTracks();
+    }
+
+    function renderFsDrawerTracks() {
+      const list = document.getElementById('fs-drawer-track-list');
+      list.innerHTML = '';
+      const tracks = getCurrentPlaylist().tracks;
+      tracks.forEach((t, idx) => {
+        const isCur = idx === window.currentTrackIndex;
+        const div = document.createElement('div');
+        div.className = `p-2.5 rounded-xl flex items-center justify-between text-xs cursor-pointer transition ${isCur ? 'bg-indigo-600 text-white font-bold shadow-md' : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300'}`;
+        
+        let playingIndicator = isCur ? '<i class="fa-solid fa-volume-high text-emerald-400 animate-pulse-fast ml-2 flex-shrink-0"></i>' : '';
+
+        div.innerHTML = `
+          <div class="flex items-center justify-between w-full min-w-0">
+            <span class="truncate pr-2 min-w-0 flex-1">${escapeHtml(t.title)}</span>
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <span class="text-[10px] opacity-70">${escapeHtml(t.artist)}</span>
+              ${playingIndicator}
+            </div>
+          </div>
+        `;
+        div.onclick = () => { 
+          playTrack(idx); 
+          renderFsDrawerTracks(); 
+        };
+        list.appendChild(div);
+      });
+    }
+
+    function switchTab(type) {
+      document.getElementById('form-youtube').classList.add('hidden');
+      document.getElementById('form-mp3').classList.add('hidden');
+      document.getElementById('form-mp4').classList.add('hidden');
+      document.getElementById('tab-yt-btn').className = "flex-1 py-1.5 rounded-lg font-semibold text-slate-400 transition";
+      document.getElementById('tab-mp3-btn').className = "flex-1 py-1.5 rounded-lg font-semibold text-slate-400 transition";
+      document.getElementById('tab-mp4-btn').className = "flex-1 py-1.5 rounded-lg font-semibold text-slate-400 transition";
+
+      document.getElementById(`form-${type}`).classList.remove('hidden');
+      document.getElementById(`tab-${type}-btn`).className = "flex-1 py-1.5 rounded-xl font-semibold bg-indigo-600 text-white transition shadow";
+    }
+
+    function openSettingsModal() { document.getElementById('settings-modal').classList.remove('hidden'); }
+    function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden'); }
+    function openLyricsEditor() {
+      const tracks = getCurrentPlaylist().tracks;
+      if (window.currentTrackIndex < 0 || !tracks[window.currentTrackIndex]) { alert(t('alertNoTrack')); return; }
+      document.getElementById('lyrics-textarea').value = tracks[window.currentTrackIndex].lyrics || '';
+      document.getElementById('lyrics-modal').classList.remove('hidden');
+    }
+    function closeLyricsEditor() { document.getElementById('lyrics-modal').classList.add('hidden'); }
+    function saveLyrics() {
+      const tracks = getCurrentPlaylist().tracks;
+      if (window.currentTrackIndex >= 0 && tracks[window.currentTrackIndex]) {
+        tracks[window.currentTrackIndex].lyrics = document.getElementById('lyrics-textarea').value;
+        parseLyrics(tracks[window.currentTrackIndex].lyrics);
+        saveLocalStorage();
+      }
+      closeLyricsEditor();
+    }
+
+    const audioEngine = document.getElementById('audio-engine');
+    audioEngine.volume = 0.8;
+    audioEngine.preservesPitch = true;
+
+    function getCurrentPlaylist() {
+      return window.playlists.find(p => p.id === window.currentPlaylistId) || window.playlists[0];
+    }
+
+    async function stopAllEngines() {
+      try {
+        audioEngine.pause();
+        audioEngine.currentTime = 0;
+        audioEngine.src = "";
+      } catch(e) {}
+      
+      const videoEl = document.getElementById('mp4-video-engine');
+      try {
+        videoEl.pause();
+        videoEl.currentTime = 0;
+        videoEl.removeAttribute('src');
+        videoEl.load();
+      } catch(e) {}
+
+      if (window.ytPlayer && typeof window.ytPlayer.stopVideo === 'function') {
+        try { window.ytPlayer.stopVideo(); } catch(e) {}
+      }
+    }
+
+    function createOrPlayYoutube(videoId) {
+      const ytBox = document.getElementById('youtube-box');
+      
+      const onPlayerStateChange = (e) => {
+        // [중요] 유튜브 트랙 종료 이벤트 발생 시 곧바로 다음 곡 자동 연동
+        if (e.data === YT.PlayerState.ENDED) {
+          handleTrackEnded();
+        } else if (e.data === YT.PlayerState.PLAYING) {
+          window.isPlaying = true;
+          updatePlayPauseUI();
+          try {
+            if (window.ytPlayer && typeof window.ytPlayer.setPlaybackQuality === 'function') {
+              window.ytPlayer.setPlaybackQuality('small');
+            }
+          } catch(err) {}
+        } else if (e.data === YT.PlayerState.PAUSED) {
+          window.isPlaying = false;
+          updatePlayPauseUI();
+        }
+      };
+
+      if (!window.ytPlayer || typeof window.ytPlayer.loadVideoById !== 'function') {
+        ytBox.innerHTML = '<div id="yt-player-target" class="w-full h-full"></div>';
+        
+        window.ytPlayer = new YT.Player('yt-player-target', {
+          height: '100%',
+          width: '100%',
+          videoId: videoId,
+          playerVars: { 
+            'autoplay': 1, 
+            'controls': 0,
+            'disablekb': 1,
+            'playsinline': 1,
+            'rel': 0,
+            'modestbranding': 1,
+            'enablejsapi': 1,
+            'vq': 'small'
+          },
+          events: {
+            'onReady': (e) => {
+              window.isYtReady = true;
+              try {
+                e.target.setPlaybackQuality('small');
+                e.target.playVideo();
+                e.target.setVolume(Math.round(audioEngine.volume * 100));
+              } catch(err) {}
+            },
+            'onStateChange': onPlayerStateChange,
+            'onError': (e) => {
+              console.warn("YouTube Player error:", e.data);
+              setTimeout(() => playNextTrack(), 1000);
+            }
+          }
+        });
+      } else {
+        try {
+          window.ytPlayer.loadVideoById({ videoId: videoId, suggestedQuality: 'small' });
+          window.ytPlayer.playVideo();
+          window.ytPlayer.setVolume(Math.round(audioEngine.volume * 100));
+        } catch(e) {
+          ytBox.innerHTML = '<div id="yt-player-target" class="w-full h-full"></div>';
+          window.ytPlayer = null;
+          setTimeout(() => createOrPlayYoutube(videoId), 100);
+        }
+      }
+    }
+
+    async function playTrack(index) {
+      const tracks = getCurrentPlaylist().tracks;
+      if (index < 0 || index >= tracks.length) return;
+      
+      triggerMelonKeepAlive();
+      await stopAllEngines();
+
+      window.currentTrackIndex = index;
+      const track = tracks[index];
+
+      document.getElementById('bar-title').textContent = track.title;
+      document.getElementById('bar-artist').textContent = track.artist;
+      const fsTitle = document.getElementById('fs-bar-title');
+      const fsArtist = document.getElementById('fs-bar-artist');
+      if (fsTitle) fsTitle.textContent = track.title;
+      if (fsArtist) fsArtist.textContent = track.artist;
+
+      parseLyrics(track.lyrics || '');
+      renderTracks();
+      renderFsDrawerTracks();
+      updateMediaSessionMetadata(track);
+
+      const videoContainer = document.getElementById('video-display-container');
+      const ytBox = document.getElementById('youtube-box');
+      const discView = document.getElementById('disc-view');
+      const videoEl = document.getElementById('mp4-video-engine');
+
+      videoContainer.classList.add('hidden');
+      ytBox.classList.add('hidden');
+      discView.classList.remove('hidden');
+
+      if (track.type === 'youtube') {
+        discView.classList.add('hidden');
+        ytBox.classList.remove('hidden');
+        createOrPlayYoutube(track.src);
+        window.isPlaying = true;
+        updatePlayPauseUI();
+      } else if (track.type === 'mp3') {
+        let rawData = await getMediaFromDB(track.id) || await getMediaFromDB(track.src) || track.fileData;
+        if (rawData) {
+          audioEngine.src = dataURLtoBlobUrl(rawData);
+          audioEngine.load();
+          await audioEngine.play().then(() => {
+            window.isPlaying = true;
+            updatePlayPauseUI();
+          }).catch((err) => { console.log("Audio play deferred:", err); });
+        } else {
+          alert("저장된 오디오 파일을 찾을 수 없습니다.");
+        }
+      } else if (track.type === 'mp4') {
+        discView.classList.add('hidden');
+        videoContainer.classList.remove('hidden');
+        let rawData = await getMediaFromDB(track.id) || await getMediaFromDB(track.src) || track.fileData;
+        if (rawData) {
+          videoEl.src = dataURLtoBlobUrl(rawData);
+          videoEl.load();
+          await videoEl.play().then(() => {
+            window.isPlaying = true;
+            updatePlayPauseUI();
+          }).catch((err) => { console.log("Video play deferred:", err); });
+        } else {
+          alert("저장된 동영상 파일을 찾을 수 없습니다.");
+        }
+      }
+    }
+
+    function setupAudioListeners() {
+      audioEngine.ontimeupdate = () => {
+        const tracks = getCurrentPlaylist().tracks;
+        if (window.currentTrackIndex >= 0 && tracks[window.currentTrackIndex]?.type === 'mp3') {
+          updateProgress(audioEngine.currentTime, audioEngine.duration || 0);
+        }
+      };
+      audioEngine.onended = () => { handleTrackEnded(); };
+
+      const videoEl = document.getElementById('mp4-video-engine');
+      videoEl.ontimeupdate = () => {
+        const tracks = getCurrentPlaylist().tracks;
+        if (window.currentTrackIndex >= 0 && tracks[window.currentTrackIndex]?.type === 'mp4') {
+          updateProgress(videoEl.currentTime, videoEl.duration || 0);
+        }
+      };
+      videoEl.onended = () => { handleTrackEnded(); };
+    }
+
+    function updateProgress(curr, dur) {
+      if (dur > 0) {
+        const pct = (curr / dur) * 100;
+        
+        const mainBar = document.getElementById('progress-bar');
+        const fsBar = document.getElementById('fs-progress-bar');
+        
+        if (mainBar) {
+          mainBar.value = pct;
+          mainBar.style.background = `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${pct}%, rgba(100, 116, 139, 0.3) ${pct}%, rgba(100, 116, 139, 0.3) 100%)`;
+        }
+        if (fsBar) {
+          fsBar.value = pct;
+          fsBar.style.background = `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${pct}%, rgba(100, 116, 139, 0.3) ${pct}%, rgba(100, 116, 139, 0.3) 100%)`;
+        }
+
+        const timeStr = formatTime(curr);
+        const durStr = formatTime(dur);
+        document.getElementById('current-time').textContent = timeStr;
+        document.getElementById('duration').textContent = durStr;
+        const fsCur = document.getElementById('fs-current-time');
+        const fsDur = document.getElementById('fs-duration');
+        if (fsCur) fsCur.textContent = timeStr;
+        if (fsDur) fsDur.textContent = durStr;
+      }
+      updateActiveLyric(curr);
+    }
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function seekTrack(val) {
+      const tracks = getCurrentPlaylist().tracks;
+      const track = tracks[window.currentTrackIndex];
+      if (!track) return;
+      if (track.type === 'mp3' && audioEngine.duration) {
+        audioEngine.currentTime = (val / 100) * audioEngine.duration;
+      } else if (track.type === 'mp4') {
+        const videoEl = document.getElementById('mp4-video-engine');
+        if (videoEl.duration) videoEl.currentTime = (val / 100) * videoEl.duration;
+      } else if (track.type === 'youtube' && window.ytPlayer && typeof window.ytPlayer.getDuration === 'function') {
+        window.ytPlayer.seekTo((val / 100) * window.ytPlayer.getDuration(), true);
+      }
+    }
+
+    function togglePlayPause() {
+      triggerMelonKeepAlive();
+      const tracks = getCurrentPlaylist().tracks;
+      const track = tracks[window.currentTrackIndex];
+      if (!track) {
+        if (tracks.length > 0) playTrack(0);
+        return;
+      }
+
+      if (track.type === 'youtube' && window.ytPlayer) {
+        try {
+          const state = window.ytPlayer.getPlayerState();
+          if (state === YT.PlayerState.PLAYING) {
+            window.ytPlayer.pauseVideo();
+            window.isPlaying = false;
+          } else {
+            window.ytPlayer.playVideo();
+            window.isPlaying = true;
+          }
+        } catch(e) {
+          createOrPlayYoutube(track.src);
+          window.isPlaying = true;
+        }
+      } else if (track.type === 'mp3') {
+        if (audioEngine.paused) {
+          audioEngine.play().catch(()=>{});
+          window.isPlaying = true;
+        } else {
+          audioEngine.pause();
+          window.isPlaying = false;
+        }
+      } else if (track.type === 'mp4') {
+        const videoEl = document.getElementById('mp4-video-engine');
+        if (videoEl.paused) {
+          videoEl.play().catch(()=>{});
+          window.isPlaying = true;
+        } else {
+          videoEl.pause();
+          window.isPlaying = false;
+        }
+      }
+      updatePlayPauseUI();
+    }
+
+    function updatePlayPauseUI() {
+      const icon = '<i class="fa-solid fa-pause"></i>';
+      const playIcon = '<i class="fa-solid fa-play ml-0.5" id="playIcon"></i>';
+      document.getElementById('play-pause-btn').innerHTML = window.isPlaying ? icon : playIcon;
+      const fsBtn = document.getElementById('fs-play-pause-btn');
+      if (fsBtn) fsBtn.innerHTML = window.isPlaying ? icon : '<i class="fa-solid fa-play ml-0.5" id="fsPlayIcon"></i>';
+      renderTracks();
+      renderFsDrawerTracks();
+    }
+
+    function handleTrackEnded() {
+      if (window.isRepeat && window.currentTrackIndex >= 0) {
+        playTrack(window.currentTrackIndex);
+      } else {
+        playNextTrack();
+      }
+    }
+
+    function playNextTrack() {
+      const tracks = getCurrentPlaylist().tracks;
+      if (tracks.length === 0) return;
+      let next = window.currentTrackIndex + 1;
+      if (window.isShuffle) next = Math.floor(Math.random() * tracks.length);
+      if (next >= tracks.length) next = 0;
+      playTrack(next);
+    }
+
+    function playPrevTrack() {
+      const tracks = getCurrentPlaylist().tracks;
+      if (tracks.length === 0) return;
+      let prev = window.currentTrackIndex - 1;
+      if (prev < 0) prev = tracks.length - 1;
+      playTrack(prev);
+    }
+
+    function skipTime(sec) {
+      const tracks = getCurrentPlaylist().tracks;
+      const track = tracks[window.currentTrackIndex];
+      if (!track) return;
+      if (track.type === 'mp3') {
+        audioEngine.currentTime = Math.max(0, Math.min(audioEngine.duration || 0, audioEngine.currentTime + sec));
+      } else if (track.type === 'mp4') {
+        const videoEl = document.getElementById('mp4-video-engine');
+        videoEl.currentTime = Math.max(0, Math.min(videoEl.duration || 0, videoEl.currentTime + sec));
+      } else if (track.type === 'youtube' && window.ytPlayer && typeof window.ytPlayer.getCurrentTime === 'function') {
+        const target = Math.max(0, window.ytPlayer.getCurrentTime() + sec);
+        window.ytPlayer.seekTo(target, true);
+      }
+    }
+
+    function setVolume(val) {
+      const v = parseFloat(val) / 100;
+      audioEngine.volume = v;
+      document.getElementById('mp4-video-engine').volume = v;
+      if (window.ytPlayer && typeof window.ytPlayer.setVolume === 'function') {
+        window.ytPlayer.setVolume(val);
+      }
+      
+      const mainSlider = document.getElementById('volume-slider');
+      const fsSlider = document.getElementById('fs-volume-slider');
+      
+      if (mainSlider) {
+        mainSlider.value = val;
+        mainSlider.style.background = `linear-gradient(to right, #10b981 0%, #10b981 ${val}%, rgba(100, 116, 139, 0.3) ${val}%, rgba(100, 116, 139, 0.3) 100%)`;
+      }
+      if (fsSlider) {
+        fsSlider.value = val;
+        fsSlider.style.background = `linear-gradient(to right, #10b981 0%, #10b981 ${val}%, rgba(100, 116, 139, 0.3) ${val}%, rgba(100, 116, 139, 0.3) 100%)`;
+      }
+
+      const muteIcon = v === 0 ? '<i class="fa-solid fa-volume-xmark text-rose-400"></i>' : '<i class="fa-solid fa-volume-high"></i>';
+      document.getElementById('mute-btn').innerHTML = muteIcon;
+      document.getElementById('fs-mute-btn').innerHTML = muteIcon;
+    }
+
+    function toggleMute() {
+      const slider = document.getElementById('volume-slider');
+      if (audioEngine.volume > 0) {
+        window.previousVolume = slider.value;
+        setVolume(0);
+      } else {
+        setVolume(window.previousVolume || 80);
+      }
+    }
+
+    function setPlaybackSpeed(spd) {
+      const rate = parseFloat(spd);
+      audioEngine.playbackRate = rate;
+      document.getElementById('mp4-video-engine').playbackRate = rate;
+      if (window.ytPlayer && typeof window.ytPlayer.setPlaybackRate === 'function') window.ytPlayer.setPlaybackRate(rate);
+    }
+
+    function toggleShuffle() {
+      window.isShuffle = !window.isShuffle;
+      document.getElementById('shuffle-btn').style.color = window.isShuffle ? '#8b5cf6' : '';
+    }
+
+    function toggleRepeat() {
+      window.isRepeat = !window.isRepeat;
+      document.getElementById('repeat-btn').style.color = window.isRepeat ? '#8b5cf6' : '';
+    }
+
+    function renderPlaylists() {
+      const listEl = document.getElementById('playlist-list');
+      listEl.innerHTML = '';
+      window.playlists.forEach(pl => {
+        const isSel = pl.id === window.currentPlaylistId;
+        const btn = document.createElement('button');
+        btn.className = `w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-semibold flex items-center justify-between transition ${isSel ? 'bg-indigo-600 text-white shadow' : 'bg-slate-100 dark:bg-slate-950/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}`;
+        btn.innerHTML = `<span><i class="fa-solid fa-folder mr-2"></i> ${escapeHtml(pl.name)}</span><span class="text-[10px] opacity-80">${pl.tracks.length}${window.currentLang === 'en' ? ' tracks' : '곡'}</span>`;
+        btn.onclick = () => { window.currentPlaylistId = pl.id; window.currentTrackIndex = -1; renderPlaylists(); renderTracks(); };
+        listEl.appendChild(btn);
+      });
+    }
+
+    function renderTracks() {
+      const listEl = document.getElementById('track-list');
+      listEl.innerHTML = '';
+      const pl = getCurrentPlaylist();
+      document.getElementById('current-playlist-title').innerHTML = `<i class="fa-solid fa-music text-indigo-500"></i> ${escapeHtml(pl.name)}`;
+      document.getElementById('track-count-badge').textContent = `${pl.tracks.length}${window.currentLang === 'en' ? ' tracks' : '곡'}`;
+
+      if (pl.tracks.length === 0) {
+        listEl.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">${t('noTrack')}</div>`;
+        return;
+      }
+
+      pl.tracks.forEach((track, idx) => {
+        const isCur = idx === window.currentTrackIndex;
+        const div = document.createElement('div');
+        div.className = `flex items-center justify-between p-3 rounded-2xl border text-xs transition ${isCur ? 'bg-indigo-500/10 border-indigo-500/50 text-indigo-600 dark:text-indigo-400 font-bold' : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'}`;
+        
+        let badge = track.type === 'youtube' ? '<span class="text-[9px] bg-red-500/10 text-red-500 font-bold px-1.5 py-0.5 rounded flex-shrink-0">YT</span>' : track.type === 'mp3' ? '<span class="text-[9px] bg-emerald-500/10 text-emerald-500 font-bold px-1.5 py-0.5 rounded flex-shrink-0">MP3</span>' : '<span class="text-[9px] bg-purple-500/10 text-purple-500 font-bold px-1.5 py-0.5 rounded flex-shrink-0">MP4</span>';
+
+        let playingIndicator = isCur ? '<i class="fa-solid fa-volume-high text-emerald-400 animate-pulse-fast ml-1 flex-shrink-0"></i>' : '';
+
+        div.innerHTML = `
+          <div class="flex items-center space-x-2.5 min-w-0 flex-1 cursor-pointer" onclick="playTrack(${idx})">
+            <span class="w-5 text-center text-slate-400 font-mono flex-shrink-0">${idx + 1}</span>
+            ${badge}
+            <div class="min-w-0 flex-1 flex items-center gap-1.5">
+              <p class="truncate font-semibold min-w-0 flex-1">${escapeHtml(track.title)}</p>
+              ${playingIndicator}
+            </div>
+          </div>
+          <div class="flex items-center gap-1 flex-shrink-0 ml-2">
+            <button onclick="openPlaylistSelectModal(${idx})" class="p-1.5 text-slate-400 hover:text-emerald-400 transition" title="다른 재생목록에 추가 [+]"><i class="fa-solid fa-plus text-[10px]"></i></button>
+            <button onclick="moveTrack(${idx}, 'up')" class="p-1.5 text-slate-400 hover:text-indigo-400 transition" title="한 칸 위로"><i class="fa-solid fa-arrow-up text-[10px]"></i></button>
+            <button onclick="moveTrack(${idx}, 'down')" class="p-1.5 text-slate-400 hover:text-indigo-400 transition" title="한 칸 아래로"><i class="fa-solid fa-arrow-down text-[10px]"></i></button>
+            <button onclick="moveTrack(${idx}, 'top')" class="p-1.5 text-slate-400 hover:text-indigo-400 transition" title="맨 위로"><i class="fa-solid fa-angles-up text-[10px]"></i></button>
+            <button onclick="moveTrack(${idx}, 'bottom')" class="p-1.5 text-slate-400 hover:text-indigo-400 transition" title="맨 아래로"><i class="fa-solid fa-angles-down text-[10px]"></i></button>
+            <button onclick="deleteTrack(${idx})" class="p-1.5 text-slate-400 hover:text-rose-500 transition" title="삭제"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+          </div>
+        `;
+        listEl.appendChild(div);
+      });
+
+      if (window.currentTrackIndex >= 0 && listEl.children[window.currentTrackIndex]) {
+        try {
+          listEl.children[window.currentTrackIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch(e) {}
+      }
+    }
+
+    function moveTrack(idx, direction) {
+      const tracks = getCurrentPlaylist().tracks;
+      if (direction === 'up' && idx > 0) {
+        const item = tracks.splice(idx, 1)[0];
+        tracks.splice(idx - 1, 0, item);
+        if (window.currentTrackIndex === idx) window.currentTrackIndex = idx - 1;
+        else if (window.currentTrackIndex === idx - 1) window.currentTrackIndex = idx;
+      } else if (direction === 'down' && idx < tracks.length - 1) {
+        const item = tracks.splice(idx, 1)[0];
+        tracks.splice(idx + 1, 0, item);
+        if (window.currentTrackIndex === idx) window.currentTrackIndex = idx + 1;
+        else if (window.currentTrackIndex === idx + 1) window.currentTrackIndex = idx;
+      } else if (direction === 'top' && idx > 0) {
+        const item = tracks.splice(idx, 1)[0];
+        tracks.unshift(item);
+        if (window.currentTrackIndex === idx) window.currentTrackIndex = 0;
+        else if (window.currentTrackIndex < idx && window.currentTrackIndex > 0) window.currentTrackIndex++;
+      } else if (direction === 'bottom' && idx < tracks.length - 1) {
+        const item = tracks.splice(idx, 1)[0];
+        tracks.push(item);
+        if (window.currentTrackIndex === idx) window.currentTrackIndex = tracks.length - 1;
+        else if (window.currentTrackIndex > idx) window.currentTrackIndex--;
+      }
+      renderTracks();
+      renderFsDrawerTracks();
+      saveLocalStorage();
+    }
+
+    function createNewPlaylist() {
+      const name = prompt(window.currentLang === 'en' ? "Enter new playlist name:" : "새 플레이리스트 이름을 입력하세요:");
+      if (!name || !name.trim()) return;
+      const newId = 'pl_' + Date.now();
+      window.playlists.push({ id: newId, name: name.trim(), tracks: [] });
+      window.currentPlaylistId = newId;
+      renderPlaylists();
+      renderTracks();
+      saveLocalStorage();
+    }
+
+    function deleteTrack(idx) {
+      getCurrentPlaylist().tracks.splice(idx, 1);
+      if (window.currentTrackIndex === idx) { stopAllEngines(); window.currentTrackIndex = -1; window.isPlaying = false; updatePlayPauseUI(); }
+      else if (window.currentTrackIndex > idx) { window.currentTrackIndex--; }
+      renderTracks();
+      renderFsDrawerTracks();
+      saveLocalStorage();
+    }
+
+    function filterTracks(query) {
+      const listEl = document.getElementById('track-list');
+      const q = query.toLowerCase();
+      const pl = getCurrentPlaylist();
+      const items = listEl.children;
+      pl.tracks.forEach((track, idx) => {
+        if (!items[idx]) return;
+        const match = track.title.toLowerCase().includes(q) || track.artist.toLowerCase().includes(q);
+        items[idx].style.display = match ? 'flex' : 'none';
+      });
+    }
+
+    let ytFetchDebounce = null;
+    function handleYoutubeUrlInput(url) {
+      if (ytFetchDebounce) clearTimeout(ytFetchDebounce);
+      
+      const ytId = extractYouTubeId(url);
+      const titleInput = document.getElementById('yt-title');
+      const artistInput = document.getElementById('yt-artist');
+
+      if (!ytId) return;
+
+      ytFetchDebounce = setTimeout(() => {
+        const targetUrl = `https://www.youtube.com/watch?v=${ytId}`;
+        const oembedUrl = `https://noembed.com/embed?url=${encodeURIComponent(targetUrl)}`;
+
+        fetch(oembedUrl)
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.title) {
+              titleInput.value = data.title;
+              if (data.author_name) artistInput.value = data.author_name;
+            } else {
+              if (!titleInput.value) titleInput.value = `YouTube Track (${ytId})`;
+            }
+          })
+          .catch(() => {
+            if (!titleInput.value) titleInput.value = `YouTube Track (${ytId})`;
+          });
+      }, 300);
+    }
+
+    let cachedMp3DataUrl = null;
+    let cachedMp4DataUrl = null;
+
+    function handleMp3FileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      document.getElementById('mp3-file-label').textContent = file.name;
+      if (!document.getElementById('mp3-title').value) {
+        document.getElementById('mp3-title').value = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+      }
+      const reader = new FileReader();
+      reader.onload = (evt) => { cachedMp3DataUrl = evt.target.result; };
+      reader.readAsDataURL(file);
+    }
+
+    function handleMp4FileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      document.getElementById('mp4-file-label').textContent = file.name;
+      if (!document.getElementById('mp4-title').value) {
+        document.getElementById('mp4-title').value = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+      }
+      const reader = new FileReader();
+      reader.onload = (evt) => { cachedMp4DataUrl = evt.target.result; };
+      reader.readAsDataURL(file);
+    }
+
+    async function addMp3Track() {
+      const title = document.getElementById('mp3-title').value.trim() || "Untitled MP3";
+      const artist = document.getElementById('mp3-artist').value.trim() || "Local Audio";
+      if (!cachedMp3DataUrl) { alert("MP3 파일을 선택해주세요."); return; }
+      const id = 'mp3_' + Date.now();
+      await saveMediaToDB(id, cachedMp3DataUrl);
+
+      getCurrentPlaylist().tracks.push({ id, title, artist, type: 'mp3', src: id, lyrics: '' });
+      document.getElementById('mp3-title').value = '';
+      document.getElementById('mp3-artist').value = '';
+      document.getElementById('mp3-file-label').textContent = t('mp3File');
+      cachedMp3DataUrl = null;
+      renderTracks();
+      renderPlaylists();
+      saveLocalStorage();
+    }
+
+    async function addMp4Track() {
+      const title = document.getElementById('mp4-title').value.trim() || "Untitled Video";
+      const artist = document.getElementById('mp4-artist').value.trim() || "Local Video";
+      if (!cachedMp4DataUrl) { alert("MP4 파일을 선택해주세요."); return; }
+      const id = 'mp4_' + Date.now();
+      await saveMediaToDB(id, cachedMp4DataUrl);
+
+      getCurrentPlaylist().tracks.push({ id, title, artist, type: 'mp4', src: id, lyrics: '' });
+      document.getElementById('mp4-title').value = '';
+      document.getElementById('mp4-artist').value = '';
+      document.getElementById('mp4-file-label').textContent = t('mp4File');
+      cachedMp4DataUrl = null;
+      renderTracks();
+      renderPlaylists();
+      saveLocalStorage();
+    }
+
+    function addYouTubeTrack() {
+      const urlInput = document.getElementById('yt-url').value.trim();
+      const ytId = extractYouTubeId(urlInput);
+      if (!ytId) { alert("올바른 YouTube URL 또는 ID를 입력하세요."); return; }
+
+      const title = document.getElementById('yt-title').value.trim() || `YouTube Track (${ytId})`;
+      const artist = document.getElementById('yt-artist').value.trim() || "YouTube";
+
+      getCurrentPlaylist().tracks.push({ id: 'yt_' + Date.now(), title, artist, type: 'youtube', src: ytId, lyrics: '' });
+      document.getElementById('yt-title').value = '';
+      document.getElementById('yt-artist').value = '';
+      document.getElementById('yt-url').value = '';
+      renderTracks();
+      renderPlaylists();
+      saveLocalStorage();
+    }
+
+    function extractYouTubeId(url) {
+      const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+      return (match && match[2].length === 11) ? match[2] : (url.length === 11 ? url : null);
+    }
+
+    function parseLyrics(lrc) {
+      const container = document.getElementById('lyrics-container');
+      container.innerHTML = '';
+      window.currentParsedLyrics = [];
+      if (!lrc || !lrc.trim()) {
+        container.innerHTML = `<p class="text-slate-400 dark:text-slate-500 text-xs my-auto">${t('lyricsEmpty')}</p>`;
+        return;
+      }
+      lrc.split('\n').forEach((line, idx) => {
+        const m = line.match(/\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/);
+        if (m) {
+          window.currentParsedLyrics.push({ time: parseInt(m[1]) * 60 + parseInt(m[2]) + parseFloat("0." + m[3]), text: m[4].trim(), id: `lyric-${idx}` });
+        }
+      });
+      window.currentParsedLyrics.forEach(item => {
+        const p = document.createElement('p');
+        p.id = item.id;
+        p.className = "text-slate-400 dark:text-slate-500 text-xs py-1 transition-all lyric-line";
+        p.textContent = item.text;
+        container.appendChild(p);
+      });
+    }
+
+    function updateActiveLyric(currTime) {
+      if (!window.currentParsedLyrics.length) return;
+      let activeIdx = -1;
+      for (let i = 0; i < window.currentParsedLyrics.length; i++) {
+        if (currTime >= window.currentParsedLyrics[i].time) activeIdx = i;
+        else break;
+      }
+      window.currentParsedLyrics.forEach((item, idx) => {
+        const el = document.getElementById(item.id);
+        if (el) {
+          if (idx === activeIdx) {
+            el.classList.add('active');
+            try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {}
+          } else {
+            el.classList.remove('active');
+          }
+        }
+      });
+    }
+
+    function autoGenerateLyrics() {
+      const tracks = getCurrentPlaylist().tracks;
+      const track = tracks[window.currentTrackIndex];
+      if (!track) { alert(t('alertNoTrack')); return; }
+      track.lyrics = `[00:02.00] ♪ ${track.title} (${track.artist}) ♪\n[00:10.00] Corvexyn Music Pro Sync\n[00:25.00] Lyrics scroll automatically with music.`;
+      parseLyrics(track.lyrics);
+      saveLocalStorage();
+    }
+
+    window.onYouTubeIframeAPIReady = function() {
+      window.isYtReady = true;
+    };
+
+    function exportDataToFile() {
+      const slimPlaylists = window.playlists.map(pl => ({
+        ...pl,
+        tracks: pl.tracks.map(t => { const { fileData, ...rest } = t; return rest; })
+      }));
+      const blob = new Blob([JSON.stringify({ playlists: slimPlaylists, currentPlaylistId: window.currentPlaylistId }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `corvexyn_music_backup_${Date.now()}.json`;
+      a.click();
+    }
+
+    function importDataFromFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed.playlists) {
+            window.playlists = parsed.playlists;
+            if (parsed.currentPlaylistId) window.currentPlaylistId = parsed.currentPlaylistId;
+            renderPlaylists();
+            renderTracks();
+            alert(t('backupSuccess'));
+          }
+        } catch(err) { alert(t('invalidBackup')); }
+      };
+      reader.readAsText(file);
+    }
+
+    function saveLocalStorage() {
+      try {
+        const slim = window.playlists.map(pl => ({
+          ...pl,
+          tracks: pl.tracks.map(t => { const { fileData, ...rest } = t; return rest; })
+        }));
+        localStorage.setItem('corvexyn_studio_data', JSON.stringify({ playlists: slim, currentPlaylistId: window.currentPlaylistId }));
+      } catch(e) {}
+    }
+
+    function loadLocalStorage() {
+      try {
+        const raw = localStorage.getItem('corvexyn_studio_data');
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data.playlists) window.playlists = data.playlists;
+          if (data.currentPlaylistId) window.currentPlaylistId = data.currentPlaylistId;
+        }
+      } catch(e) {}
+    }
+
+    function escapeHtml(str) {
+      return !str ? '' : String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+  </script>
+</body>
+</html>
